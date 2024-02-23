@@ -3,12 +3,13 @@
 from bs4 import BeautifulSoup
 from content_capture import content_Capture
 from collections import defaultdict
+import requests
+import re
 #-------------------------------------------------------------------------------
 #(1） URL的后缀类型，后缀类型为.html则特征值为0，为.js则特征值为1，其它类型的后缀则特征值为2;
 def get_suffix_feature(url):
     # 获取URL的后缀
     suffix = url.split('.')[-1]
-
     # 根据后缀类型返回特征值
     if suffix == 'html':
         return 0
@@ -18,6 +19,8 @@ def get_suffix_feature(url):
         return 2
 
 #------------------------------------------------------------------------------------
+#这里需要注意的是target_tag = soup.find('a', href=target_url)需要输入的target_url是匹配相对路径，因为实现的时候为了减少一个检索过程在获取url的时候获取的是一个包含绝对
+#路径和相对路径的元组('/books/85357/', 'https://www.asvmw.cc/books/85357/')当需要访问时使用元组的第1个元素，匹配的时候使用第0个元素
 #(2)URL所处层级，通过对HTML文本结构的分析并依据DOM树的层级特点，本文对HTML文本中的每个URL设置了层级属性，以<html>标签所处的层级为第0级
 # 每个标签的所处层级为其外部嵌套的标签的层级加1，特征值为URL所处的层级树
 def get_url_hierarchy(html_content, target_url):
@@ -39,25 +42,6 @@ def calculate_hierarchy(tag):
         current_tag = current_tag.parent
     return hierarchy
 
-def hierarchy(url, target_url):
-    html_content = content_Capture(url)
-    if html_content:
-        # 尝试直接查找目标URL
-        url_hierarchy = get_url_hierarchy(html_content, target_url)
-        if url_hierarchy is not None:
-            return  url_hierarchy
-        else:
-            # 如果直接查找失败，则尝试去除基础URL部分再查找
-            base_url = url.rstrip('/') + '/'  # 确保基础URL以斜杠结尾
-            cleaned_target_url = target_url.replace(base_url, '')  # 去除基础URL部分
-            url_hierarchy = get_url_hierarchy(html_content, cleaned_target_url)
-
-            if url_hierarchy is not None:
-                return url_hierarchy
-            else:
-                return None
-    else:
-        return None
 
 #------------------------------------------------------------------------------------
 #(3)URL所处层级的其它URL数量
@@ -73,9 +57,9 @@ def get_all_urls_with_hierarchy(html_content):
 
     return urls_by_hierarchy
 
-def count_other_urls_at_hierarchy(html_content, url, target_url):
+def count_other_urls_at_hierarchy(html_content, target_url):
     urls_by_hierarchy = get_all_urls_with_hierarchy(html_content)
-    target_hierarchy = hierarchy(url, target_url)
+    target_hierarchy = get_url_hierarchy(html_content, target_url)
 
     if target_hierarchy is not None:
         other_urls_count = sum(
@@ -85,21 +69,70 @@ def count_other_urls_at_hierarchy(html_content, url, target_url):
     else:
         return None
 
-def other_urls_at_hierarchy(url,target_url):
-    html_content = content_Capture(url)
+#------------------------------------------------------------------------------------
+#(4）URL后是否有title属性，有则特征值为1，否则为0;
+#(5）URL后是否有target属性，有则特征值为1，否则为0;
+def extract_features(html_content, target_url):
+    title_attribute = 0
+    target_attribute = 0
 
-    if html_content:
-        other_urls_count = count_other_urls_at_hierarchy(html_content, url, target_url)
-        if other_urls_count is not None:
-            return other_urls_count
+    soup = BeautifulSoup(html_content, 'html.parser')
+
+    # 检查是否存在 title 属性
+    if soup.find(attrs={'href': target_url}).has_attr('title'):
+        title_attribute = 1
+
+    # 检查是否存在 target 属性
+    if soup.find(attrs={'href': target_url}).has_attr('target'):
+        target_attribute = 1
+
+    return title_attribute, target_attribute
+
+#-----------------------------------------------------------------------------------
+# (6)URL中是否包含'play''book''chapter''read'字符串，包含则特征值为1，否则为0;
+def url_contains_keyword(url):
+    keywords = ["play", "book", "chapter"]
+    for keyword in keywords:
+        if keyword in url:
+            return 1
+    return 0
+
+#-----------------------------------------------------------------------------------
+#(7)URL是否可访问，若可访问即对URL发出请求后返回的HTTP状态码为-200，则特征值为1，否则为0
+def url_accessible(url):
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            return 1
         else:
-            return None
-    else:
-        return None
+            return 0
+    except requests.RequestException:
+        return 0
 
-a=other_urls_at_hierarchy("http://www.aishuge.cc/kan/62/62164/","http://www.aishuge.cc/kan/62/62164/132107.html")
-b=hierarchy("https://www.bbaook.cn/","https://www.bbaook.cn/txt/15784260tzj3/")
-print(a,b)
-#if __name__ == "__main__":
-    #url = "http://www.aishuge.cc/kan/62/62164/"
-    #target_url = "http://www.aishuge.cc/kan/62/62164/132107.html"
+#-----------------------------------------------------------------------------------
+#( 8）URL中是否含有"数字-数字"模式的子串，包含则特征值为1，否则为0
+def url_contains_pattern(url):
+    pattern = r'\d+/\d+'
+    match = re.search(pattern, url)
+    if match:
+        return 1
+    else:
+        return 0
+
+#总调用函数获取所有特征target_url是元组('/books/85357/', 'https://www.asvmw.cc/books/85357/')
+def get_features(url, target_url):
+    html_content = content_Capture(url)
+    if html_content:
+        suffix=get_suffix_feature(target_url[1])
+        url_hierarchy = get_url_hierarchy(html_content, target_url[0])
+        other_urls_count = count_other_urls_at_hierarchy(html_content, target_url[0])
+        title_attribute, target_attribute=extract_features(html_content, target_url[0])
+        keywords=url_contains_keyword(target_url[1])
+        response=url_accessible(target_url[1])
+        match=url_contains_pattern(target_url[1])
+        return suffix,url_hierarchy,other_urls_count,title_attribute, target_attribute,keywords,response,match
+    return None
+
+#test
+suffix,url_hierarchy,other_urls_count,title_attribute, target_attribute,keywords,response,match=get_features("https://www.asvmw.cc/books/85357/", ('/books/85357/1825516.html', 'https://www.asvmw.cc/books/85357/1825516.html'))
+print(suffix,url_hierarchy,other_urls_count,title_attribute, target_attribute,keywords,response,match)
