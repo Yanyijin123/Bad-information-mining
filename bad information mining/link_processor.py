@@ -3,7 +3,7 @@ import re
 import time
 import urllib
 import pandas as pd
-from page_capture.url_capture import url_Capture  # 导入从一个页面获取链接的函数
+from page_capture.content_capture import url_Capture  # 导入从一个页面获取链接的函数
 from url_jugement.judgement_links import Judgement_Links  # 导入一个从页面判断链接的函数,决策树
 
 def process_links(website_Links):

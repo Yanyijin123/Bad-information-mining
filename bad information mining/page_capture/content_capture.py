@@ -1,9 +1,28 @@
 # —*—coding：utf-8-*—
-#这个函数是用来获取一个页面所有的链接
 from urllib.parse import urljoin
+
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
 
+#获取整个页面的内容用来计算链接层级
+def content_Capture(url):
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)
+        context = browser.new_context()
+        page = context.new_page()
+        try:
+            page.goto(url)
+            page.wait_for_load_state("load")
+            # 获取页面的 HTML 内容
+            html = page.content()
+            return html  # 返回 HTML 内容
+        except Exception as e:
+            print(f"发生异常: {e}")
+        finally:
+            # 关闭浏览器
+            browser.close()
+
+#这个函数用来获取页面内部的url链接
 def url_Capture(url):
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
@@ -27,5 +46,4 @@ def url_Capture(url):
         finally:
             # 关闭浏览器
             browser.close()
-
 
