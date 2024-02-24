@@ -1,8 +1,8 @@
 # —*—coding：utf-8-*—
 #这个代码是用来实现决策树中判断属性输入的转化，包含video，book两种分别对应小说网站和视频网站
 from bs4 import BeautifulSoup
-from content_capture import content_Capture
 from collections import defaultdict
+from content_capture import content_Capture
 import requests
 import re
 #-------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ def count_other_urls_at_hierarchy(html_content, target_url):
         # 减去目标URL本身的数量
         return other_urls_count
     else:
-        return None
+        return 0
 
 #------------------------------------------------------------------------------------
 #(4）URL后是否有title属性，有则特征值为1，否则为0;
@@ -78,13 +78,12 @@ def extract_features(html_content, target_url):
 
     soup = BeautifulSoup(html_content, 'html.parser')
 
-    # 检查是否存在 title 属性
-    if soup.find(attrs={'href': target_url}).has_attr('title'):
-        title_attribute = 1
-
-    # 检查是否存在 target 属性
-    if soup.find(attrs={'href': target_url}).has_attr('target'):
-        target_attribute = 1
+    target_element = soup.find(attrs={'href': target_url})
+    if target_element is not None:
+        if target_element.has_attr('title'):
+            title_attribute = 1
+        if target_element.has_attr('target'):
+            target_attribute = 1
 
     return title_attribute, target_attribute
 
@@ -119,20 +118,44 @@ def url_contains_pattern(url):
     else:
         return 0
 
+#在这里我又设置了一个函数将离散的url数目转化3层简化我们的思路，如果是0-3层，那么这个url属于底层url，3-6中层，超过6说明这个url是非常深层次的url
+def convert_hierarchy_level(level):
+    if level <= 3:
+        return 0
+    elif level <= 6:
+        return 1
+    else:
+        return 2
+
+#在这里我又设置了一个函数将离散的url数目转化3层简化我们的思路，如果是0-10层，那么这个url属于少量类似url，10-50中量类似url，超过50说明这个大量相似url
+def convert_count_level(level):
+    if level <= 10:
+        return 0
+    elif level <= 50:
+        return 1
+    else:
+        return 2
+
 #总调用函数获取所有特征target_url是元组('/books/85357/', 'https://www.asvmw.cc/books/85357/')
 def get_features(url, target_url):
     html_content = content_Capture(url)
     if html_content:
-        suffix=get_suffix_feature(target_url[1])
-        url_hierarchy = get_url_hierarchy(html_content, target_url[0])
-        other_urls_count = count_other_urls_at_hierarchy(html_content, target_url[0])
-        title_attribute, target_attribute=extract_features(html_content, target_url[0])
-        keywords=url_contains_keyword(target_url[1])
-        response=url_accessible(target_url[1])
-        match=url_contains_pattern(target_url[1])
-        return suffix,url_hierarchy,other_urls_count,title_attribute, target_attribute,keywords,response,match
+        suffix = get_suffix_feature(target_url[1])
+        hierarchy = get_url_hierarchy(html_content, target_url[0])
+        urls_count = count_other_urls_at_hierarchy(html_content, target_url[0])
+        title_attribute, target_attribute = extract_features(html_content, target_url[0])
+        keywords = url_contains_keyword(target_url[1])
+        response = url_accessible(target_url[1])
+        match = url_contains_pattern(target_url[1])
+
+        # 确保所有变量都不为 None 才计算 url_hierarchy 和 other_urls_count
+        if all(x is not None for x in
+               [suffix, hierarchy, urls_count, title_attribute, target_attribute, keywords, response, match]):
+            url_hierarchy = convert_hierarchy_level(hierarchy)
+            other_urls_count = convert_count_level(urls_count)
+            return suffix, url_hierarchy, other_urls_count, title_attribute, target_attribute, keywords, response, match
     return None
 
 #test
-suffix,url_hierarchy,other_urls_count,title_attribute, target_attribute,keywords,response,match=get_features("https://www.asvmw.cc/books/85357/", ('/books/85357/1825516.html', 'https://www.asvmw.cc/books/85357/1825516.html'))
-print(suffix,url_hierarchy,other_urls_count,title_attribute, target_attribute,keywords,response,match)
+#suffix,url_hierarchy,other_urls_count,title_attribute, target_attribute,keywords,response,match=get_features("https://www.asvmw.cc/books/18231/", ('/indexlist/18231/', 'https://www.asvmw.cc/indexlist/18231/'))
+#print(suffix,url_hierarchy,other_urls_count,title_attribute, target_attribute,keywords,response,match)

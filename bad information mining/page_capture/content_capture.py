@@ -1,6 +1,5 @@
 # —*—coding：utf-8-*—
 from urllib.parse import urljoin
-
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
 
@@ -13,11 +12,16 @@ def content_Capture(url):
         try:
             page.goto(url)
             page.wait_for_load_state("load")
+            # 等待10秒钟以确保页面加载完成
+            page.wait_for_timeout(10000)
             # 获取页面的 HTML 内容
             html = page.content()
             return html  # 返回 HTML 内容
         except Exception as e:
             print(f"发生异常: {e}")
+            print(f"发生异常: {e}")
+            print(f"无法访问网站: {url}")
+            return []
         finally:
             # 关闭浏览器
             browser.close()
@@ -31,7 +35,7 @@ def url_Capture(url):
         try:
             page.goto(url)
             page.wait_for_load_state("load")
-            # 等待5秒钟以确保页面加载完成
+            # 等待10秒钟以确保页面加载完成
             page.wait_for_timeout(10000)
             # 获取页面的 HTML 内容
             html = page.content()
@@ -53,3 +57,7 @@ def url_Capture(url):
         finally:
             # 关闭浏览器
             browser.close()
+
+import sys
+print(sys.path)
+sys.path.append('D:/A网络安全中心总文件/a多元多端不良信息检测/github/Bad-information-mining/bad information mining/page_capture')

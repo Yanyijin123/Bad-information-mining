@@ -4,7 +4,7 @@ import time
 import urllib
 import pandas as pd
 from page_capture.content_capture import url_Capture  # 导入从一个页面获取链接的函数
-from url_jugement.judgement_links import Judgement_Links  # 导入一个从页面判断链接的函数,决策树
+from page_capture.judgement_links import Judgement_Links  # 导入一个从页面判断链接的函数,决策树
 
 def process_links(website_Links):
     if not website_Links.empty:
@@ -26,7 +26,7 @@ def process_links(website_Links):
                     raise e  # 如果不是HTTP Error 403，抛出异常
 
             for L_url in S_link:
-                L_jud = Judgement_Links(L_url[1])  # 直接传递URL字符串
+                L_jud = Judgement_Links(url,L_url)  # 直接传递URL字符串
                 tag_P_links = []  # 初始化 tag_P_links 列表
 
                 if L_jud == 1:
@@ -35,7 +35,7 @@ def process_links(website_Links):
                         tag_L_links.append(L_url)
 
                         for P_url in T_link:
-                            P_jud = Judgement_Links(P_url[1])  # 直接传递URL字符串
+                            P_jud = Judgement_Links(L_url[1],P_url)  # 直接传递URL字符串
 
                             if P_jud == 2:
                                 if len(tag_P_links) < 5:
