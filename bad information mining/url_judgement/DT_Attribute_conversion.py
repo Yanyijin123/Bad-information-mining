@@ -2,7 +2,6 @@
 #这个代码是用来实现决策树中判断属性输入的转化，包含video，book两种分别对应小说网站和视频网站
 from bs4 import BeautifulSoup
 from collections import defaultdict
-from content_capture import content_Capture
 import requests
 import re
 #-------------------------------------------------------------------------------
@@ -137,12 +136,11 @@ def convert_count_level(level):
         return 2
 
 #总调用函数获取所有特征target_url是元组('/books/85357/', 'https://www.asvmw.cc/books/85357/')
-def get_features(url, target_url):
-    html_content = content_Capture(url)
+def features(html_content , target_url):
     if html_content:
         suffix = get_suffix_feature(target_url[1])
-        hierarchy = get_url_hierarchy(html_content, target_url[0])
-        urls_count = count_other_urls_at_hierarchy(html_content, target_url[0])
+        url_hierarchy = get_url_hierarchy(html_content, target_url[0])
+        other_urls_count = count_other_urls_at_hierarchy(html_content, target_url[0])
         title_attribute, target_attribute = extract_features(html_content, target_url[0])
         keywords = url_contains_keyword(target_url[1])
         response = url_accessible(target_url[1])
@@ -150,11 +148,20 @@ def get_features(url, target_url):
 
         # 确保所有变量都不为 None 才计算 url_hierarchy 和 other_urls_count
         if all(x is not None for x in
-               [suffix, hierarchy, urls_count, title_attribute, target_attribute, keywords, response, match]):
-            url_hierarchy = convert_hierarchy_level(hierarchy)
-            other_urls_count = convert_count_level(urls_count)
+               [suffix, url_hierarchy, other_urls_count, title_attribute, target_attribute, keywords, response, match]):
             return suffix, url_hierarchy, other_urls_count, title_attribute, target_attribute, keywords, response, match
     return None
+
+#离散化：
+def get_features(html_content , target_url):
+    res=features(html_content , target_url)
+    if res is not None:
+        suffix, hierarchy, urls_count, title_attribute, target_attribute, keywords, response, match=res
+        url_hierarchy=convert_hierarchy_level(hierarchy)
+        other_urls_count=convert_count_level(urls_count)
+        return suffix, url_hierarchy, other_urls_count, title_attribute, target_attribute, keywords, response, match
+    return None
+
 
 #test
 #suffix,url_hierarchy,other_urls_count,title_attribute, target_attribute,keywords,response,match=get_features("https://www.asvmw.cc/books/18231/", ('/indexlist/18231/', 'https://www.asvmw.cc/indexlist/18231/'))

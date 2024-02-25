@@ -2,10 +2,9 @@
 #输入为suffix,url_hierarchy,other_urls_count,title_attribute, target_attribute,keywords,response,match
 import pandas as pd
 from  DT_main import ID3Tree
-import DT_help
 from DT_Attribute_conversion import get_features
 
-def Judgement_Links(url, target_url):
+def Judgement_Links(html_content , target_url):
     # 使用正则表达式匹配数字结尾
     # 读取Excel文件
     # 读取 Excel 文件
@@ -26,7 +25,7 @@ def Judgement_Links(url, target_url):
     #DT_help.createPlot(id3.tree)  # 可视化决策树
 
 
-    # 给定新一天的气象数据指标，根据决策树，来判断是否会去打球
+    # 给定新一天的url数据指标，根据决策树，来判断是否会去打球
     def predict_play(tree, new_dic):
         """
         根据构造的决策树，对未知数据进行预测
@@ -39,7 +38,7 @@ def Judgement_Links(url, target_url):
             tree = tree.get(key, {}).get(new_dic.get(key))
         return tree
 
-    result = get_features(url, target_url)
+    result = get_features(html_content , target_url)
     if result is None:
         jud = 0
     else:
