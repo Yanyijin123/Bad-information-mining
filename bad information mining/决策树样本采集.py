@@ -38,12 +38,14 @@ def catch(website_Links):
                 tag_P_links = []  # 初始化 tag_P_links 列表
                 if len(tag_L_links) < 10:
                     # 判断是否能够访问L_url
+                    suffix1, url_hierarchy1, other_urls_count1, title_attribute1, target_attribute1, keywords1, response1, match1 = features(
+                        L_html_content, L_url)
+                    L = [L_url[1], L_url, suffix1, url_hierarchy1, other_urls_count1, title_attribute1,
+                         target_attribute1, keywords1, response1, match1]
+                    print("L", L)
+                    sum_L_links.append(L)
+                    tag_L_links.append(L_url)
                     if can_access(L_url[1]):
-                        suffix1, url_hierarchy1, other_urls_count1, title_attribute1, target_attribute1, keywords1, response1, match1=features(L_html_content,L_url)
-                        L=[L_url[1],L_url,suffix1, url_hierarchy1, other_urls_count1, title_attribute1, target_attribute1, keywords1, response1, match1]
-                        print("L",L)
-                        sum_L_links.append(L)
-                        tag_L_links.append(L_url)
                         # 捕获P-links
                         try:
                             P_link,P_html_content = url_Capture(L_url[1])
@@ -58,15 +60,14 @@ def catch(website_Links):
 
                         for p_url in P_link:
                             # 判断是否能够访问P_link
-                            if len(tag_P_links) < 3:
-                                if can_access(p_url[1]):
-                                    suffix2, url_hierarchy2, other_urls_count2, title_attribute2, target_attribute2, keywords2, response2, match2 = features(P_html_content, p_url)
-                                    P = [p_url[1],p_url, suffix2, url_hierarchy2, other_urls_count2, title_attribute2, target_attribute2, keywords2, response2, match2]
-                                    print("p",P)
-                                    sum_P_links.append(P)
-                                    tag_P_links.append(p_url)
-                            else:
-                                break
+                            if len(tag_P_links) < 1:
+                                suffix2, url_hierarchy2, other_urls_count2, title_attribute2, target_attribute2, keywords2, response2, match2 = features(
+                                    P_html_content, p_url)
+                                P = [p_url[1], p_url, suffix2, url_hierarchy2, other_urls_count2, title_attribute2,
+                                     target_attribute2, keywords2, response2, match2]
+                                print("p", P)
+                                sum_P_links.append(P)
+                                tag_P_links.append(p_url)
 
                     else:
                         break
