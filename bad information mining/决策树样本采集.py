@@ -81,7 +81,7 @@ def catch(website_Links):
                               columns=['clik','url', 'suffix', 'url_hierarchy', 'other_urls_count', 'title_attribute',
                                        'target_attribute', 'keywords', 'response', 'match'])
             # 将 DataFrame 写入 Excel 文件
-            df.to_excel('output.xlsx', index=False)
+            df.to_excel('videooutput.xlsx', index=False)
 
             # 添加延迟，每处理完一个链接后延迟2秒
             time.sleep(2)
@@ -97,6 +97,6 @@ def extract_links_from_excel(file_path):
 
 if __name__ == '__main__':
     # 读取Excel文件
-    excel_file_path = 'testurl.xlsx'
+    excel_file_path = 'video1.xlsx'
     # 提取链接并处理
     extract_links_from_excel(excel_file_path)
