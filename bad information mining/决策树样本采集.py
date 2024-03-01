@@ -24,19 +24,24 @@ def catch(website_Links):
             # 使用 Website_Links 变量处理链接
             tag_L_links = []
 
-            try:
-                L_link,L_html_content = url_Capture(url)
 
-            except urllib.error.HTTPError as e:
-                if e.code == 403:
-                    print(f"HTTP Error 403: Forbidden for {url}. Skipping...")
-                    continue  # 跳过当前链接的处理
-                else:
-                    raise e  # 如果不是HTTP Error 403，抛出异常
+            # 尝试捕获网页内容
+
+            try:
+
+                L_link, L_html_content = url_Capture(url)
+
+            except Exception as e:
+
+                print(f"Failed to capture content for {url}: {e}")
+
+                # 如果捕获失败，跳过当前链接的处理
+
+                continue
 
             for L_url in L_link:
                 tag_P_links = []  # 初始化 tag_P_links 列表
-                if len(tag_L_links) < 10:
+                if len(tag_L_links) < 5:
                     # 判断是否能够访问L_url
                     suffix1, url_hierarchy1, other_urls_count1, title_attribute1, target_attribute1, keywords1, response1, match1 = features(
                         L_html_content, L_url)
@@ -50,13 +55,9 @@ def catch(website_Links):
                         try:
                             P_link,P_html_content = url_Capture(L_url[1])
 
-
-                        except urllib.error.HTTPError as e:
-                            if e.code == 403:
-                                print(f"HTTP Error 403: Forbidden for {L_url[1]}. Skipping...")
-                                continue  # 跳过当前链接的处理
-                            else:
-                                raise e  # 如果不是HTTP Error 403，抛出异常
+                        except Exception as e:
+                            print(f"Failed to capture content for {url}: {e}")
+                        # 如果捕获失败，跳过当前链接的处理
 
                         for p_url in P_link:
                             # 判断是否能够访问P_link

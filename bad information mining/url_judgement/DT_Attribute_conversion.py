@@ -87,9 +87,9 @@ def extract_features(html_content, target_url):
     return title_attribute, target_attribute
 
 #-----------------------------------------------------------------------------------
-# (6)URL中是否包含'play''book''chapter''read'字符串，包含则特征值为1，否则为0;
+# (6)URL中是否包含'play''chapter''字符串，包含则特征值为1，否则为0;
 def url_contains_keyword(url):
-    keywords = ["play", "book", "chapter",'read']
+    keywords = ["play", "chapter"]
     for keyword in keywords:
         if keyword in url:
             return 1
