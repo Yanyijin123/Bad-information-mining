@@ -41,7 +41,7 @@ def catch(website_Links):
 
             for L_url in L_link:
                 tag_P_links = []  # 初始化 tag_P_links 列表
-                if len(tag_L_links) < 3:
+                if len(tag_L_links) < 4:
                     # 判断是否能够访问L_url
                     suffix1, url_hierarchy1, other_urls_count1, title_attribute1, target_attribute1, keywords1, response1, match1 = features(
                         L_html_content, L_url)
