@@ -41,7 +41,7 @@ def catch(website_Links):
 
             for L_url in L_link:
                 tag_P_links = []  # 初始化 tag_P_links 列表
-                if len(tag_L_links) < 5:
+                if len(tag_L_links) < 3:
                     # 判断是否能够访问L_url
                     suffix1, url_hierarchy1, other_urls_count1, title_attribute1, target_attribute1, keywords1, response1, match1 = features(
                         L_html_content, L_url)
@@ -61,7 +61,7 @@ def catch(website_Links):
 
                         for p_url in P_link:
                             # 判断是否能够访问P_link
-                            if len(tag_P_links) < 1:
+                            if len(tag_P_links) < 3:
                                 suffix2, url_hierarchy2, other_urls_count2, title_attribute2, target_attribute2, keywords2, response2, match2 = features(
                                     P_html_content, p_url)
                                 P = [p_url[1], p_url, suffix2, url_hierarchy2, other_urls_count2, title_attribute2,
@@ -82,7 +82,7 @@ def catch(website_Links):
                               columns=['clik','url', 'suffix', 'url_hierarchy', 'other_urls_count', 'title_attribute',
                                        'target_attribute', 'keywords', 'response', 'match'])
             # 将 DataFrame 写入 Excel 文件
-            df.to_excel('videooutput.xlsx', index=False)
+            df.to_excel('bookoutput.xlsx', index=False)
 
             # 添加延迟，每处理完一个链接后延迟2秒
             time.sleep(2)
@@ -98,6 +98,6 @@ def extract_links_from_excel(file_path):
 
 if __name__ == '__main__':
     # 读取Excel文件
-    excel_file_path = 'video1.xlsx'
+    excel_file_path = 'book.xlsx'
     # 提取链接并处理
     extract_links_from_excel(excel_file_path)
