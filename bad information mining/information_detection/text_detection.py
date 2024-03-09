@@ -3,7 +3,7 @@ import re
 
 def load_bad_words_from_csv(file_path):
     bad_words = []
-    with open(file_path, 'r') as file:
+    with open(file_path, 'r', encoding='utf-8') as file:
         csv_reader = csv.reader(file)
         for row in csv_reader:
             bad_words.extend(row)
@@ -19,7 +19,7 @@ def detect_bad_websites(text, bad_words):
     return False
 
 # 从CSV文件加载不良关键词列表
-bad_words = load_bad_words_from_csv('bad_words.csv')
+bad_words = load_bad_words_from_csv('C:\\Users\\吴伊\\bad_words.csv')
 
 text = '这是一段包含不良关键词的文本'
 if detect_bad_websites(text, bad_words):
