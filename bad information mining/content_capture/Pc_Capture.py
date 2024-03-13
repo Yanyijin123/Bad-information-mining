@@ -98,7 +98,6 @@ async def wait_for_all_images_loaded(page, folder_path):
             break
 
 
-
 async def save_text_content(page, file_path):
     print("正在保存文本内容...")
     content = await page.evaluate("document.body.innerText")
