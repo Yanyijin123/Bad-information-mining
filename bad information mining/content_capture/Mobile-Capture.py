@@ -96,9 +96,11 @@ async def capture_screenshots():
     # url = "https://www.modiandy.com/movie/t_s_j_xed.html"
     # url = "https://www.yivip.cc/play/3207-1-1/"
     # url = "https://3.xxtv15a.xyz:8888/"
-    # url='https://www.sjz42.net/sjvoddetail/21504.html'
+    #url='https://www.sjz42.net/sjvoddetail/21504.html'
     # url ='https://2415.w-home.com.cn/hhc/xtz'
-    url = 'http://m.yinghua8.tv/show/3619.html'
+    #url = 'http://m.yinghua8.tv/show/3619.html'
+    #url = "https://zhujikong.net/"
+    url = "https://www.fcwei.com/vod/fengkuangdeshitou.html"
     folder_name = url.replace('/', '_').replace(':', '_').replace('.', '_')
     folder_path = f"./{folder_name}"  # 图片保存文件夹路径
     image_path = f"{folder_path}./screenshots-mobile"

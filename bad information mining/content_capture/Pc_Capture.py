@@ -119,7 +119,8 @@ async def slow_scroll_to_bottom(page):
 async def capture_screenshots():
     # url = "https://zhujikong.net/"
     # url = "https://vidhub2.cc/voddetail/77102.html"
-    url = "https://www.fcwei.com/vod/fengkuangdeshitou.html"
+    #url = "https://www.fcwei.com/vod/fengkuangdeshitou.html"
+    url = "https://zhujikong.net/"
     folder_name = url.replace('/', '_').replace(':', '_').replace('.', '_')
     folder_path = f"./{folder_name}"  # 图片保存文件夹路径
     image_path = f"{folder_path}./Pc-screenshots"
